@@ -5,9 +5,10 @@ const port = 8080;
 const app = express();
 app.use(morgan("dev"));
 
-
-app.listen(port, function(){
-    console.log(`Kripto projekt pokrenut na portu ${port}!`);
+app.get("/projekt", (req, res) => {
+    res.send("Hello World");
 });
 
-
+app.listen(port, () => {
+    console.log(`Kripto projekt pokrenut na portu ${port}!`);
+});
