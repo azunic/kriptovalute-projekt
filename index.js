@@ -1,42 +1,24 @@
-const express = require("express");
-const morgan =  require("morgan");
-const bitcoinRpc = require("node-bitcoin-rpc");
+const express = require('express');
+const expressLayouts = require("express-ejs-layouts");
+//const sequelize = require("sequelize");
+const morgan = require("morgan");
+const path = require('path');
+const router = require("./app/routes");
 const port = 8080;
 
 const app = express();
-app.use(morgan("dev"));
+app.use(express.static(__dirname + "/public")); //tell express where to look for our static files
+app.use(morgan("dev"));                         //log every request to the console
+app.set("view engine", "ejs");                  //set ejs as our templating engine
+app.set('views', path.join(__dirname, '/app/views'))
+app.use(expressLayouts);
+app.use(express.urlencoded());
 
-app.get("/projekt", (req, res) => {
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
 
-    try{
-        bitcoinRpc.init('blockchain.oss.unist.hr', '8332', 'student', 'WYVyF5DTERJASAiIiYGg4UkRH');
-        bitcoinRpc.call('getblockcount', [], function (err, btc_res) {
-            if (err) {
-              const errMsg = "Dogodila se greska prilikom pozivanja Bitcoin Core Api-ija: " + err;
-              console.log(errMsg);
-              throw new Error(errMsg);
-            } 
-            else if (btc_res.error) {
-              const errMsg = "Pogreska primljena od strane Bitcoin Core-a " 
-              + btc_res.error.message 
-              + " (" + btc_res.error.code + ")";
+router(app);
 
-              console.log(errMsg);
-              throw new Error(errMsg);
-            } 
-            else {
-              console.log('Odgovor od Bitcoin Core api-ija: ')
-              console.log(btc_res.result);
-              res.send("Get block count: " + btc_res.result);
-            }
-        });
-
-    }catch(err){
-        console.error("Dogodila se pogreska",err);
-    }
-    
-});
-
-app.listen(port, () => {
-    console.log(`Kripto projekt pokrenut na portu ${port}!`);
+app.listen(port, function () {
+  console.log(`Crypto project app listening on port ${port}!`);
 });
